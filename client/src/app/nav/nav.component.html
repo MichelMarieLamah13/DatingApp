@@ -21,9 +21,9 @@
     <div class="dropdown" *ngIf="(accountService.currentUser$ | async) as user" dropdown>
       <span class="dropdown-toggle text-light" dropdownToggle>Welcome {{user.userName | titlecase}}</span>
       <div class="dropdown-menu mt-3" *dropdownMenu>
-        <a href="#" class="dropdown-item">Edit Profile</a>
+        <a routerLink="/member/edit" class="dropdown-item">Edit Profile</a>
         <div class="dropdown-divider"></div>
-        <a href="#" class="dropdown-item" (click)="logout()">Logout</a>
+        <a  class="dropdown-item" (click)="logout()">Logout</a>
       </div>
     </div>
     <form *ngIf="!(accountService.currentUser$ | async)" #loginForm="ngForm" class="form-inline mt-2 mt-md-0"
