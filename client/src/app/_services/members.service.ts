@@ -8,6 +8,7 @@ import { map, take } from 'rxjs/operators';
 import { PaginatedResult } from '../_models/pagination';
 import { UserParams } from '../_models/userParams';
 import { User } from '../_models/user';
+import { LikesParams } from '../_models/likesParams';
 
 @Injectable({
   providedIn: 'root'
@@ -18,15 +19,17 @@ export class MembersService {
   memberCache = new Map();
   user: User;
   userParams: UserParams;
+  likesParams: LikesParams;
 
   constructor(private http: HttpClient, private accountService: AccountService) {
     this.accountService.currentUser$.pipe(take(1)).subscribe(user => {
       this.user = user;
       this.userParams = new UserParams(this.user);
+      this.likesParams = new LikesParams();
     })
   }
 
-  getUserParams():UserParams {
+  getUserParams(): UserParams {
     return this.userParams;
   }
 
@@ -34,7 +37,17 @@ export class MembersService {
     this.userParams = params;
   }
 
-  resetUserParams(){
+  setLikesParams(params: LikesParams) {
+    this.likesParams = params;
+  }
+
+  getLikesParams(): LikesParams{
+    return this.likesParams;
+  }
+
+
+
+  resetUserParams() {
     this.userParams = new UserParams(this.user);
     return this.userParams;
   }
@@ -70,7 +83,6 @@ export class MembersService {
     if (member) {
       return of(member);
     }
-    console.log(member);
     return this.http.get<Member>(`${this.baseUrl}users/${username}`)
   }
 
@@ -91,6 +103,26 @@ export class MembersService {
 
   deletePhoto(photoId: number) {
     return this.http.delete(`${this.baseUrl}users/delete-photo/${photoId}`);
+  }
+
+  addLike(username: string) {
+    return this.http.post(`${this.baseUrl}likes/${username}`, {});
+  }
+
+  getLikes(likesParams: LikesParams) {
+    const key = Object.values(likesParams).join('-');
+    var response = this.memberCache.get(key)
+    if (response) {
+      return of(response);
+    }
+    let params = this.getPaginationHeaders(likesParams.pageNumber, likesParams.pageSize);
+    params = params.append('predicate', likesParams.predicate);
+    return this.getPaginatedResult<Partial<Member[]>>(`${this.baseUrl}likes`, params).pipe(
+      map(response => {
+        this.memberCache.set(key, response);
+        return response;
+      })
+    )
   }
 
   private getPaginatedResult<T>(url: string, params: HttpParams) {
