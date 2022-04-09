@@ -30,13 +30,14 @@ export class MemberEditComponent implements OnInit {
   }
 
   loadMember() {
-    this.memberService.getMember(this.user.userName).subscribe(member => {
-      this.member = member
+    console.log(this.user);
+    this.memberService.getMember(this.user.username).subscribe(member => {
+      this.member = member;
+      console.log(this.member);
     })
   }
 
   updateMember() {
-    console.log(this.member);
     this.memberService.updateMember(this.member).subscribe(() => {
       this.tostrService.success('Profile updated successfully');
       this.editForm.reset(this.member);
