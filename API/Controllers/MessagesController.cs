@@ -53,7 +53,7 @@ namespace API.Controllers
             _messageRepository.AddMessage(message);
 
             if(await _messageRepository.SaveAllAsync()){
-                return _mapper.Map<MessageDto>(message);
+                return Ok(_mapper.Map<MessageDto>(message));
             }   
             return BadRequest("Failed to send message");
         }
