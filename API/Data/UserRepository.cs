@@ -56,12 +56,12 @@ namespace API.Data
             query = query.Where(user => user.DateOfBirth >= minDob && user.DateOfBirth <= maxDob);
             query = userParams.OrderBy switch
             {
-                "created"=>query.OrderByDescending(u => u.Created),
+                "created" => query.OrderByDescending(u => u.Created),
                 _ => query.OrderByDescending(u => u.LastActive)
             };
             return await PagedList<MemberDto>.CreateAsync(
-                query.ProjectTo<MemberDto>(_mapper.ConfigurationProvider).AsNoTracking(), 
-                userParams.PageNumber, 
+                query.ProjectTo<MemberDto>(_mapper.ConfigurationProvider).AsNoTracking(),
+                userParams.PageNumber,
                 userParams.PageSize);
         }
 
@@ -85,9 +85,28 @@ namespace API.Data
         async Task<string> IUserRepository.GetUserGender(string username)
         {
             return await _context.Users
-                .Where(u=>u.UserName==username)
-                .Select(u=>u.Gender)
+                .Where(u => u.UserName == username)
+                .Select(u => u.Gender)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<MemberDto> GetMemberAsync(string username, bool isCurrentUser)
+        {
+            var query = _context.Users
+                .Where(x => x.UserName == username)
+                .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
+                .AsQueryable();
+            if (isCurrentUser) query = query.IgnoreQueryFilters();
+            return await query.FirstOrDefaultAsync();
+        }
+
+        public async Task<AppUser> GetUserByPhotoId(int photoId)
+        {
+            return await _context.Users
+                    .Include(p => p.Photos)
+                    .IgnoreQueryFilters()
+                    .Where(p => p.Photos.Any(p => p.Id == photoId))
+                    .FirstOrDefaultAsync();
         }
     }
 }
