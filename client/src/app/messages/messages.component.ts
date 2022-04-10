@@ -1,3 +1,4 @@
+import { ConfirmService } from './../_services/confirm.service';
 import { MessageService } from './../_services/message.service';
 import { UserParams } from './../_models/userParams';
 import { Component, OnInit } from '@angular/core';
@@ -16,7 +17,7 @@ export class MessagesComponent implements OnInit {
   messageParams: MessageParams;
 
   loading=false;
-  constructor(private messageService: MessageService) {
+  constructor(private messageService: MessageService, private confirmService: ConfirmService) {
     this.messageParams = new MessageParams();
   }
 
@@ -42,9 +43,13 @@ export class MessagesComponent implements OnInit {
 
   deleteMessage(event:any, id:number){
     event.stopPropagation();
-    this.messageService.deleteMessage(id).subscribe(()=>{
-      const msgIdx = this.messages.findIndex(m=>m.id==id)
-      this.messages=this.messages.splice(msgIdx, 1);
+    this.confirmService.confirm('Confirm delete message','This can not be undone').subscribe(result=>{
+      if(result){
+        this.messageService.deleteMessage(id).subscribe(()=>{
+          const msgIdx = this.messages.findIndex(m=>m.id==id)
+          this.messages=this.messages.splice(msgIdx, 1);
+        })
+      }
     })
   }
 
