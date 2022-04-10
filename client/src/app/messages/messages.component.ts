@@ -34,7 +34,7 @@ export class MessagesComponent implements OnInit {
     })
   }
 
-  pageChange(event: any) {
+  pageChanged(event: any) {
     if (this.messageParams.pageNumber != event.page) {
       this.messageParams.pageNumber = event.page;
       this.loadMessages();
@@ -47,7 +47,8 @@ export class MessagesComponent implements OnInit {
       if(result){
         this.messageService.deleteMessage(id).subscribe(()=>{
           const msgIdx = this.messages.findIndex(m=>m.id==id)
-          this.messages=this.messages.splice(msgIdx, 1);
+          this.messages.splice(msgIdx, 1);
+
         })
       }
     })
