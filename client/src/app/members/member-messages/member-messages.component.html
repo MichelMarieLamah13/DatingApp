@@ -1,14 +1,10 @@
 <div class="card">
-  <div class="card-body">
+  <div class="card-body" #scrollMe style="overflow: scroll; height: 535px;" [scrollTop]="scrollMe.scrollHeight">
     <div *ngIf="(messageService.messageThread$ | async)?.length === 0">
       No messages yet... say hi by using the message box below
     </div>
-    <ul #scrollMe
-      style="overflow: scroll; height: 500px;"
-      [scrollTop]="scrollMe.scrollHeight"
-      *ngIf="(messageService.messageThread$ | async)?.length > 0"
-      class="chat">
-      <li *ngFor="let message of (messageService.messageThread$ | async)" >
+    <ul *ngIf="(messageService.messageThread$ | async)?.length > 0" class="chat">
+      <li *ngFor="let message of (messageService.messageThread$ | async)">
         <div>
           <span class="chat-img float-right">
             <img [src]="message?.senderPhotoUrl || './assets/user.png'" [alt]="message?.senderUsername"
@@ -36,13 +32,13 @@
   <div class="card-footer">
     <form #messageForm="ngForm" (ngSubmit)="sendMessage()" autocomplete="off">
       <div class="input-group">
-        <input type="text"
-          name="messageContent" id="messageContent"
-          required
-          [(ngModel)]="messageContent"
+        <input type="text" name="messageContent" id="messageContent" required [(ngModel)]="messageContent"
           class="form-control input-sm" placeholder="Send a private message">
         <div class="input-group-append">
-          <button class="btn btn-primary" type="submit" [disabled]="!messageForm.valid"><i class="fa fa-paper-plane"></i> </button>
+          <button class="btn btn-primary" type="submit" [disabled]="!messageForm.valid || loading">
+            <i *ngIf="loading" class="fa fa-spinner fa-spin"></i>
+            <i class="fa fa-paper-plane"></i>
+          </button>
         </div>
       </div>
 
